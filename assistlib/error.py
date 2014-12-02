@@ -1,9 +1,8 @@
 # -*- coding: cp936 -*-
-#关于各种误差分析函数
-#参数准确值aVal，估计值eVal
-#属于行向量组合矩阵
+#误差分析函数：参数准确值aVal，估计值eVal
+#输入行向量组合矩阵
 import numpy as np
-from numpy import sqrt
+
 def mse(aVal,eVal):
     #均方误差
     n,m=len(aVal),len(eVal)
@@ -14,7 +13,7 @@ def mse(aVal,eVal):
 
 def rmse(aVal,eVal):
     #均方根误差(RMSE)
-    return sqrt(mse(aVal,eVal))
+    return np.sqrt(mse(aVal,eVal))
 
 def per(rmse,s):
     #s是对应系统的常数，一般取弧长

@@ -1,19 +1,16 @@
 # -*- coding: cp936 -*-
 from __future__ import division
 import numpy as np
-from scipy import linalg as lin
-import matplotlib.pyplot as plt
-import para,enlin
-import PendData as pd
-def reverse(q,U):
-    #此处修改了参数个数，如果出现问题，请注意。
-    #型值点反求控制点
-    #q是m+1(n-1)个行向量
-    m=len(q)-1
+import parameterization as para
+import linear
+
+def reverse(Point, U):
+    '''型值点反求控制点，Point是m+1(n-1)个行向量'''
+    m=len(Point)-1
     n=m+2
-    #U=para.accumul(q,3)
-    if len(q.shape)==1:
-        q.shape=-1,1
+    #U=para.accumul(Point,3)
+    if len(Point.shape)==1:
+        Point.shape=-1,1
     def dt(i):
         return U[i+1]-U[i]
     def a(i):
@@ -32,27 +29,28 @@ def reverse(q,U):
         return pval/nval
     def e(i):
         fval=dt(i+1)+dt(i+2)
-        return fval*q[i-1,:]
+        return fval*Point[i-1,:]
     #Ax=B
     A=np.zeros([n-1,n-1])
     A[0,:3]=1,0,0
     A[n-2,-3:]=0,0,1
-    qder0=q[1,:]-q[0,:]
-    qderm=q[-1,:]-q[-2,:]#端点切矢
-    B=q[0]+dt(3)*qder0/3
+    qder0=Point[1,:]-Point[0,:]
+    qderm=Point[-1,:]-Point[-2,:]#端点切矢
+    B=Point[0]+dt(3)*qder0/3
     for i in range(1,n-2):
         A[i,i-1:i+2]=a(i+1),b(i+1),c(i+1)
         B=np.vstack([B,e(i+1)])
-    qderm=q[m]-dt(n)*qderm/3
+    qderm=Point[m]-dt(n)*qderm/3
     B=np.vstack([B,qderm])
-    solve=enlin.enlin(A,B)#方程的解
-    solve=np.vstack([q[0,:],solve,q[-1,:]])
+    solve = linear.solve(A,B)#方程的解
+    solve = np.vstack([Point[0,:],solve,Point[-1,:]])
     return solve
 
 if __name__=="__main__":
-    pv=pd.penddata(0.5,8,1.5)
-    q=pv[0]
+    import PendData as pd
+    pv=pd.data(0.5,8,1.5)
+    Point=pv[0]
     U=None#要给定参数化的
-    print reverse(q,U)
+    print reverse(Point,U)
 
     
